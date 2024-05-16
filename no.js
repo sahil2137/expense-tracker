@@ -1,105 +1,533 @@
 // script.js 
 // Get form, expense list, and total amount elements 
-const expenseForm = 
-	document.getElementById("expense-form"); 
-const expenseList = 
-	document.getElementById("expense-list"); 
-const totalAmountElement = 
-	document.getElementById("total-amount"); 
 
-// Initialize expenses array from localStorage 
-let expenses = 
-	JSON.parse(localStorage.getItem("expenses")) || []; 
+// no.js
 
-// Function to render expenses in tabular form 
-function renderExpenses() { 
+const expenseForm = document.getElementById("expense-form");
+const expenseList = document.getElementById("expense-list");
+const totalAmountElement = document.getElementById("total-amount");
+const budgetLimitInput = document.getElementById("budget-limit");
+const budgetStatus = document.getElementById("budget-status");
+const setBudgetBtn = document.getElementById("set-budget-btn");
 
-	// Clear expense list 
-	expenseList.innerHTML = ""; 
+let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+let budgetLimit = parseFloat(localStorage.getItem("budgetLimit")) || 0;
 
-	// Initialize total amount 
-	let totalAmount = 0; 
+function renderExpenses() {
+	expenseList.innerHTML = "";
 
-	// Loop through expenses array and create table rows 
-	for (let i = 0; i < expenses.length; i++) { 
-		const expense = expenses[i]; 
-		const expenseRow = document.createElement("tr"); 
-		expenseRow.innerHTML = ` 
-	<td>${expense.name}</td> 
-	<td>$${expense.amount}</td> 
-	<td class="delete-btn" data-id="${i}">Delete</td> 
-	`; 
-		expenseList.appendChild(expenseRow); 
+	let totalAmount = 0;
 
-		// Update total amount 
-		totalAmount += expense.amount; 
-	} 
+	for (let i = 0; i < expenses.length; i++) {
+		const expense = expenses[i];
+		const expenseRow = document.createElement("tr");
+		expenseRow.innerHTML = `
+		<td>${expense.name}</td> 
+		<td>$${expense.amount}</td> 
+		<td class="delete-btn" data-id="${i}">Delete</td> 
+		`;
+		expenseList.appendChild(expenseRow);
 
-	// Update total amount display 
-	totalAmountElement.textContent = 
-		totalAmount.toFixed(2); 
+		totalAmount += expense.amount;
+	}
 
-	// Save expenses to localStorage 
-	localStorage.setItem("expenses", 
-		JSON.stringify(expenses)); 
-} 
+	totalAmountElement.textContent = totalAmount.toFixed(2);
 
-// Function to add expense 
-function addExpense(event) { 
-	event.preventDefault(); 
+	// Update budget status
+	const remainingBudget = budgetLimit - totalAmount;
+	if (budgetLimit === 0) {
+		budgetStatus.textContent = "Set your budget limit";
+	} else if (remainingBudget >= 0) {
+		budgetStatus.textContent = Remaining Budget: $${remainingBudget.toFixed(2)};
+		budgetStatus.style.color = "green";
+	} else {
+		budgetStatus.textContent = Exceeded Budget: $${Math.abs(remainingBudget).toFixed(2)};
+		budgetStatus.style.color = "red";
+	}
 
-	// Get expense name and amount from form 
-	const expenseNameInput = 
-		document.getElementById("expense-name"); 
-	const expenseAmountInput = 
-		document.getElementById("expense-amount"); 
-	const expenseName = 
-		expenseNameInput.value; 
-	const expenseAmount = 
-		parseFloat(expenseAmountInput.value); 
+	// Update local storage
+	localStorage.setItem("expenses", JSON.stringify(expenses));
+}
 
-	// Clear form inputs 
-	expenseNameInput.value = ""; 
-	expenseAmountInput.value = ""; 
+function addExpense(event) {
+	event.preventDefault();
 
-	// Validate inputs 
-	if (expenseName === "" || isNaN(expenseAmount)) { 
-		alert("Please enter valid expense details."); 
-		return; 
-	} 
+	const expenseNameInput = document.getElementById("expense-name");
+	const expenseAmountInput = document.getElementById("expense-amount");
+	const expenseName = expenseNameInput.value;
+	const expenseAmount = parseFloat(expenseAmountInput.value);
 
-	// Create new expense object 
-	const expense = { 
-		name: expenseName, 
-		amount: expenseAmount, 
-	}; 
+	expenseNameInput.value = "";
+	expenseAmountInput.value = "";
 
-	// Add expense to expenses array 
-	expenses.push(expense); 
+	if (expenseName === "" || isNaN(expenseAmount)) {
+		alert("Please enter valid expense details.");
+		return;
+	}
 
-	// Render expenses 
-	renderExpenses(); 
-} 
+	const expense = {
+		name: expenseName,
+		amount: expenseAmount,
+	};
 
-// Function to delete expense 
-function deleteExpense(event) { 
-	if (event.target.classList.contains("delete-btn")) { 
+	expenses.push(expense);
 
-		// Get expense index from data-id attribute 
-		const expenseIndex = 
-			parseInt(event.target.getAttribute("data-id")); 
+	renderExpenses();
+}
 
-		// Remove expense from expenses array 
-		expenses.splice(expenseIndex, 1); 
+function deleteExpense(event) {
+	if (event.target.classList.contains("delete-btn")) {
 
-		// Render expenses 
-		renderExpenses(); 
-	} 
-} 
+		const expenseIndex =
+			parseInt(event.target.getAttribute("data-id"));
 
-// Add event listeners 
-expenseForm.addEventListener("submit", addExpense); 
-expenseList.addEventListener("click", deleteExpense); 
+		expenses.splice(expenseIndex, 1);
 
-// Render initial expenses on page load 
+		renderExpenses();
+	}
+}
+
+function setBudget() {
+	const newBudgetLimit = parseFloat(budgetLimitInput.value);
+	if (!isNaN(newBudgetLimit)) {
+		budgetLimit = newBudgetLimit;
+		localStorage.setItem("budgetLimit", budgetLimit);
+		renderExpenses();
+	} else {
+		alert("Please enter a valid budget limit.");
+	}
+}
+
+expenseForm.addEventListener("submit", addExpense);
+expenseList.addEventListener("click", deleteExpense);
+setBudgetBtn.addEventListener("click", setBudget);
+
 renderExpenses();
+
+// no.js
+
+// Add a function to generate a random color
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+// no.js
+
+// Define an array of colors in a connected color scheme
+const colors = [
+    '#FF0000', // Red
+    '#FF4500', // OrangeRed
+    '#FFA500', // Orange
+    '#FFFF00', // Yellow
+    '#32CD32', // LimeGreen
+    '#008000', // Green
+    '#00FFFF', // Cyan
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF69B4', // HotPink
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#8B4513', // SaddleBrown
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#800000', // Maroon
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#4B0082', // Indigo
+    '#800080', // Purple
+    '#9400D3', // DarkViolet
+    '#8B008B', // DarkMagenta
+    '#FF00FF', // Fuchsia
+    '#EE82EE', // Violet
+    '#8B0000', // DarkRed
+    '#FF6347', // Tomato
+    '#FA8072', // Salmon
+    '#CD5C5C', // IndianRed
+    '#8B0000', // DarkRed
+    '#FF7F50', // Coral
+    '#DC143C', // Crimson
+    '#FF4500', // OrangeRed
+    '#FFD700', // Gold
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFA07A', // LightSalmon
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#FF6347', // Tomato
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#8B4513', // SaddleBrown
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+    '#32CD32', // LimeGreen
+    '#228B22', // ForestGreen
+    '#556B2F', // DarkOliveGreen
+    '#ADFF2F', // GreenYellow
+    '#9ACD32', // YellowGreen
+    '#FFFF00', // Yellow
+    '#FFD700', // Gold
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#CD5C5C', // IndianRed
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#800080', // Purple
+    '#4B0082', // Indigo
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4169E1', // RoyalBlue
+    '#0000FF', // Blue
+    '#32CD32', // LimeGreen
+    '#FF6347', // Tomato
+    '#FF69B4', // HotPink
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#00FF00', // Lime
+    '#00FFFF', // Aqua
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#A52A2A', // Brown
+    '#800000', // Maroon
+    '#DAA520', // Goldenrod
+    '#B8860B', // DarkGoldenrod
+    '#808000', // Olive
+    '#8B4513', // SaddleBrown
+    '#556B2F', // DarkOliveGreen
+    '#2E8B57', // SeaGreen
+    '#008B8B', // DarkCyan
+    '#4682B4', // SteelBlue
+    '#6A5ACD', // SlateBlue
+    '#483D8B', // DarkSlateBlue
+];
+
+// Function to change the background color smoothly
+function changeBackgroundColor() {
+    const body = document.querySelector('body');
+    let currentIndex = 0;
+
+    // Set interval to change color smoothly
+    setInterval(() => {
+        // Calculate the index of the next color
+        const nextIndex = (currentIndex + 1) % colors.length;
+
+        // Set current and next colors
+        const currentColor = colors[currentIndex];
+        const nextColor = colors[nextIndex];
+
+        // Apply transition
+        body.style.transition = 'background-color 4s ease';
+        body.style.backgroundColor = nextColor;
+
+        // Update current index
+        currentIndex = nextIndex;
+    }, 1000); // Change color every 5 seconds
+}
+
+// Call the function to start changing the background color
+changeBackgroundColor();
