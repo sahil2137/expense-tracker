@@ -1,4 +1,4 @@
-<!-- index.html -->
+<!-- ok.html -->
 <!DOCTYPE html> 
 <html> 
 
@@ -12,6 +12,7 @@
 <body> 
 	<div class="container"> 
 		<h1>Expense Tracker</h1> 
+		
 		<form id="expense-form"> 
 			<input type="text"
 				id="expense-name"
@@ -38,6 +39,12 @@
 				<strong>Total:</strong> 
 				$<span id="total-amount">0</span> 
 			</div> 
+			<div class="budget-input">
+				<label for="budget-limit">Set Budget Limit:</label>
+				<input type="number" id="budget-limit" placeholder="Enter Budget Limit">
+				<button id="set-budget-btn">Set</button>
+			</div>
+			<div id="budget-status"></div>
 		</div> 
 	</div> 
 	<script src="no.js"></script> 
