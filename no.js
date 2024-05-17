@@ -2,7 +2,6 @@
 // Get form, expense list, and total amount elements 
 
 // no.js
-
 const expenseForm = document.getElementById("expense-form");
 const expenseList = document.getElementById("expense-list");
 const totalAmountElement = document.getElementById("total-amount");
@@ -33,7 +32,7 @@ function renderExpenses() {
 
 	totalAmountElement.textContent = totalAmount.toFixed(2);
 
-	// Update budget status
+	
 	const remainingBudget = budgetLimit - totalAmount;
 	if (budgetLimit === 0) {
 		budgetStatus.textContent = "Set your budget limit";
@@ -45,7 +44,7 @@ function renderExpenses() {
 		budgetStatus.style.color = "red";
 	}
 
-	// Update local storage
+
 	localStorage.setItem("expenses", JSON.stringify(expenses));
 }
 
@@ -104,9 +103,7 @@ setBudgetBtn.addEventListener("click", setBudget);
 
 renderExpenses();
 
-// no.js
 
-// Add a function to generate a random color
 function getRandomColor() {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -116,9 +113,7 @@ function getRandomColor() {
     return color;
 }
 
-// no.js
 
-// Define an array of colors in a connected color scheme
 const colors = [
     '#FF0000', // Red
     '#FF4500', // OrangeRed
@@ -506,28 +501,23 @@ const colors = [
     '#483D8B', // DarkSlateBlue
 ];
 
-// Function to change the background color smoothly
+
 function changeBackgroundColor() {
     const body = document.querySelector('body');
     let currentIndex = 0;
 
-    // Set interval to change color smoothly
     setInterval(() => {
-        // Calculate the index of the next color
         const nextIndex = (currentIndex + 1) % colors.length;
 
-        // Set current and next colors
         const currentColor = colors[currentIndex];
         const nextColor = colors[nextIndex];
 
-        // Apply transition
         body.style.transition = 'background-color 4s ease';
         body.style.backgroundColor = nextColor;
 
-        // Update current index
+        
         currentIndex = nextIndex;
-    }, 1000); // Change color every 5 seconds
+    }, 1000); 
 }
 
-// Call the function to start changing the background color
 changeBackgroundColor();
